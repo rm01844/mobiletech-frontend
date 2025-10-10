@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+.npm
+
+# build
+.cache/
+dist/
+build/
+.strapi-updater.json
+
+# environment
+.env
+.env.*
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# public uploads (optional - remove if you want to keep uploads)
+# public/uploads/*
