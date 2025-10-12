@@ -77,12 +77,9 @@ Push this project to GitHub.
 Fill in:
 ```
 Setting	            Value
+-------------------------------------------------------------------------
 Branch	            main
-Build Command	    (leave empty, unless Tailwind needs build)
+Build Command	    npx tailwindcss -i ./input.css -o ./output.css --minify
 Publish Directory	/
 ```
 
-If you need Tailwind to build, use:
-```
-npx tailwindcss -i ./input.css -o ./output.css --minify
-```
