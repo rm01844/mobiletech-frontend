@@ -1,25 +1,42 @@
 {
-  "name": "mobiletech-strapi",
-  "version": "1.0.0",
+  "name": "my-site",
+  "version": "0.1.0",
   "private": true,
-  "description": "MobileTech Strapi backend",
+  "description": "A Strapi application",
   "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
     "develop": "strapi develop",
     "start": "strapi start",
-    "build": "strapi build",
-    "strapi": "strapi"
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
-   "dependencies": {
-    "@strapi/strapi": "5.5.0",
-    "@strapi/plugin-users-permissions": "5.5.0",
-    "@strapi/plugin-i18n": "5.5.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.22.0",
-    "styled-components": "^6.1.8"
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.25.0",
+    "@strapi/plugin-users-permissions": "5.25.0",
+    "@strapi/strapi": "5.25.0",
+    "better-sqlite3": "11.3.0",
+    "pg": "^8.11.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
   },
-  "engines": {
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  },
+   "engines": {
     "node": "20.x",
-    "npm": ">=10.0.0"
+    "npm": ">=10.8.2"
+  },
+  "strapi": {
+    "uuid": "e212675a-9a9a-459f-ad9b-658443f34cb6",
+    "installId": "107df3548dce52363109573299ce51fff3cb0a68a119707510cb5a32e696a15e"
   }
 }
