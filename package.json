@@ -38,5 +38,8 @@
   "strapi": {
     "uuid": "e212675a-9a9a-459f-ad9b-658443f34cb6",
     "installId": "107df3548dce52363109573299ce51fff3cb0a68a119707510cb5a32e696a15e"
+  },
+  "scripts": {
+  "build": "npx tailwindcss -i ./input.css -o ./css/output.css --minify"
   }
 }
