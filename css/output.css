@@ -1,6 +1,6 @@
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Include Flowbite if needed */
+@import "flowbite";
