@@ -43,6 +43,6 @@
     "installId": "107df3548dce52363109573299ce51fff3cb0a68a119707510cb5a32e696a15e"
   },
   "scripts": {
-  "build": "npx tailwindcss -i ./input.css -o ./css/output.css --minify"
+    "build": "npx tailwindcss -i ./css/input.css -o ./css/output.css --minify"
   }
 }
