@@ -1,9 +1,11 @@
-const STRAPI_URL = 'http://localhost:1337';
+const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
 
 async function fetchFromStrapi(endpoint, options = {}) {
-    const API_URL = process.env.API_URL || "https://strapi-backend-bchh.onrender.com";
+    // Construct full URL
+    const url = `${STRAPI_URL}/api/${endpoint}`;
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, options);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return data;
@@ -14,36 +16,36 @@ async function fetchFromStrapi(endpoint, options = {}) {
 }
 
 // Specific API calls
-async function getProducts() {
+export async function getProducts() {
     return fetchFromStrapi('products?populate=*');
 }
 
-async function getProduct(id) {
+export async function getProduct(id) {
     return fetchFromStrapi(`products/${id}?populate=*`);
 }
 
-async function getServices() {
+export async function getServices() {
     return fetchFromStrapi('services?populate=*');
 }
 
-async function getHomepage() {
+export async function getHomepage() {
     return fetchFromStrapi('homepage?populate=deep');
 }
 
-async function getMarketingBanner() {
+export async function getMarketingBanner() {
     return fetchFromStrapi('marketing-banner');
 }
 
-async function getFooterContent() {
+export async function getFooterContent() {
     return fetchFromStrapi('footer-content?populate=deep');
 }
 
-async function getContactInfo() {
+export async function getContactInfo() {
     return fetchFromStrapi('contact-info');
 }
 
 // Helper to get image URL from Strapi
-function getStrapiImageUrl(image) {
+export function getStrapiImageUrl(image) {
     if (!image) return '';
     const imageData = image.data || image;
     if (imageData.attributes?.url) {
