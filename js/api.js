@@ -1,7 +1,7 @@
 const STRAPI_URL = 'http://localhost:1337';
 
 async function fetchFromStrapi(endpoint, options = {}) {
-    const url = `${STRAPI_URL}/api/${endpoint}`;
+    const API_URL = process.env.API_URL || "https://strapi-backend-bchh.onrender.com";
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
