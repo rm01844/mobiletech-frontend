@@ -6,7 +6,7 @@ const pageSize = 6; // Products per page
 
 const container = document.getElementById("products-container");
 const paginationContainer = document.getElementById("pagination-container");
-const STRAPI_URL = 'https://mobiletech-backend.onrender.com';
+const STRAPI_URL = 'https://8cac9444864f.ngrok-free.app';
 
 // Load products from Strapi with pagination
 function loadProducts(page = 1) {
