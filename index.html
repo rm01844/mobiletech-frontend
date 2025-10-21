@@ -12,7 +12,7 @@
 
 
 <body class="bg-white dark:bg-gray-800">
-
+        
     <!-- navbar -->
 
     <nav class="bg-white border-gray-200 dark:bg-gray-900">
@@ -441,6 +441,20 @@
         </div>
     </footer>
 
+    <script>
+        //ngrok fetch request
+        fetch('https://8cac9444864f.ngrok-free.app/api/articles', {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('API data:', data);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+     
+    </script>
 
     <script src="js/products.js"></script>
     <script src="js/main.js"></script>
