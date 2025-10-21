@@ -1,4 +1,4 @@
-const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
+const STRAPI_URL = 'https://8cac9444864f.ngrok-free.app';
 
 async function fetchFromStrapi(endpoint, options = {}) {
     // Construct full URL
