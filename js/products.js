@@ -1,4 +1,4 @@
-// products.js - Fixed version with better error handling
+// products.js - Fixed version with Base64 image loading for ngrok
 
 // Global variables
 let currentPage = 1;
@@ -8,8 +8,38 @@ const container = document.getElementById("products-container");
 const paginationContainer = document.getElementById("pagination-container");
 const STRAPI_URL = 'https://8cac9444864f.ngrok-free.app';
 
+// Helper function to fetch image as base64 (bypasses ngrok warning)
+async function fetchImageAsBase64(imageUrl) {
+    try {
+        console.log("Fetching image:", imageUrl);
+        const response = await fetch(imageUrl, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Image fetch failed: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                console.log("Image converted to base64 successfully");
+                resolve(reader.result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (error) {
+        console.error('Error loading image:', error);
+        return 'https://via.placeholder.com/400x300?text=Image+Error';
+    }
+}
+
 // Load products from Strapi with pagination
-function loadProducts(page = 1) {
+async function loadProducts(page = 1) {
     currentPage = page;
 
     if (!container) {
@@ -19,182 +49,196 @@ function loadProducts(page = 1) {
 
     container.innerHTML = "<div class='flex justify-center items-center py-12'><div class='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div></div>";
 
-    // FIXED: Added pagination parameters
+    // FIXED: Added pagination parameters and ngrok header
     const apiUrl = `${STRAPI_URL}/api/products?populate=image&pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
     console.log("Fetching from:", apiUrl);
 
-    fetch(apiUrl)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+    try {
+        const res = await fetch(apiUrl, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
             }
-            return res.json();
-        })
-        .then(data => {
-            console.log("Full API Response:", data);
-            console.log("Products data:", data.data);
+        });
 
-            container.innerHTML = ""; // Clear loading message
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
-            if (!data.data || data.data.length === 0) {
-                container.innerHTML = "<p class='text-center py-8 text-gray-600'>No products found!</p>";
-                return;
-            }
+        const data = await res.json();
+        console.log("Full API Response:", data);
+        console.log("Products data:", data.data);
 
-            // Create a wrapper for the grid
-            const gridWrapper = document.createElement('div');
-            gridWrapper.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        container.innerHTML = ""; // Clear loading message
 
-            // Render each product
-            data.data.forEach((product, index) => {
+        if (!data.data || data.data.length === 0) {
+            container.innerHTML = "<p class='text-center py-8 text-gray-600'>No products found!</p>";
+            return;
+        }
+
+        // Create a wrapper for the grid
+        const gridWrapper = document.createElement('div');
+        gridWrapper.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+        // Render each product (now with async image loading)
+        for (let index = 0; index < data.data.length; index++) {
+            const product = data.data[index];
+            
+            try {
+                // FIXED: Better validation
+                if (!product) {
+                    console.warn(`Product at index ${index} is null/undefined`);
+                    continue;
+                }
+
+                // FIXED: Handle both Strapi response formats
+                const attrs = product.attributes || product;
+
+                if (!attrs.name) {
+                    console.warn(`Product at index ${index} has no name:`, product);
+                    continue;
+                }
+
+                console.log(`Processing product ${index}:`, attrs.name);
+
+                const name = attrs.name || "No Name";
+
+                // Handle description (rich text or plain text)
+                let description = "No Description";
                 try {
-                    // FIXED: Better validation
-                    if (!product) {
-                        console.warn(`Product at index ${index} is null/undefined`);
-                        return;
+                    if (typeof attrs.description === "string") {
+                        description = attrs.description;
+                    } else if (attrs.description && Array.isArray(attrs.description)) {
+                        if (attrs.description[0]?.children?.[0]?.text) {
+                            description = attrs.description[0].children[0].text;
+                        } else {
+                            description = attrs.description.map(d => d.children?.[0]?.text || "").join(" ");
+                        }
+                    }
+                } catch (descError) {
+                    console.warn("Error parsing description:", descError);
+                }
+
+                const price = attrs.price || 0;
+                const category = attrs.category || "Uncategorized";
+                const stock = attrs.stock !== undefined ? attrs.stock : 0;
+                const featured = attrs.featured || false;
+
+                // FIXED: Handle image URL correctly and convert to base64
+                let imageUrl = "https://via.placeholder.com/400x300?text=No+Image";
+                let originalImageUrl = "";
+                
+                try {
+                    // Check if image is in attrs.image.data format (Strapi v4)
+                    if (attrs.image && attrs.image.data) {
+                        const imgData = Array.isArray(attrs.image.data)
+                            ? attrs.image.data[0]
+                            : attrs.image.data;
+
+                        if (imgData?.attributes?.url) {
+                            originalImageUrl = imgData.attributes.url.startsWith("http")
+                                ? imgData.attributes.url
+                                : `${STRAPI_URL}${imgData.attributes.url}`;
+                        }
+                    }
+                    // Check if image is directly in attrs.image (flattened format)
+                    else if (attrs.image && attrs.image.url) {
+                        originalImageUrl = attrs.image.url.startsWith("http")
+                            ? attrs.image.url
+                            : `${STRAPI_URL}${attrs.image.url}`;
+                    }
+                    // Check if image is just a string URL
+                    else if (typeof attrs.image === 'string') {
+                        originalImageUrl = attrs.image.startsWith("http")
+                            ? attrs.image
+                            : `${STRAPI_URL}${attrs.image}`;
                     }
 
-                    // FIXED: Handle both Strapi response formats
-                    // Some products have {attributes: {...}}, some have data directly
-                    const attrs = product.attributes || product;
-
-                    if (!attrs.name) {
-                        console.warn(`Product at index ${index} has no name:`, product);
-                        return;
+                    // Convert to base64 if we have an ngrok URL
+                    if (originalImageUrl && originalImageUrl.includes('ngrok')) {
+                        console.log(`Converting image to base64 for ${name}:`, originalImageUrl);
+                        imageUrl = await fetchImageAsBase64(originalImageUrl);
+                    } else if (originalImageUrl) {
+                        imageUrl = originalImageUrl;
                     }
 
-                    console.log(`Processing product ${index}:`, attrs.name);
+                    console.log(`Final image URL for ${name}:`, imageUrl.substring(0, 100) + '...');
+                } catch (imgError) {
+                    console.warn("Error parsing image:", imgError);
+                }
 
-                    const name = attrs.name || "No Name";
-
-                    // Handle description (rich text or plain text)
-                    let description = "No Description";
-                    try {
-                        if (typeof attrs.description === "string") {
-                            description = attrs.description;
-                        } else if (attrs.description && Array.isArray(attrs.description)) {
-                            if (attrs.description[0]?.children?.[0]?.text) {
-                                description = attrs.description[0].children[0].text;
-                            } else {
-                                description = attrs.description.map(d => d.children?.[0]?.text || "").join(" ");
-                            }
-                        }
-                    } catch (descError) {
-                        console.warn("Error parsing description:", descError);
-                    }
-
-                    const price = attrs.price || 0;
-                    const category = attrs.category || "Uncategorized";
-                    const stock = attrs.stock !== undefined ? attrs.stock : 0;
-                    const featured = attrs.featured || false;
-
-                    // FIXED: Handle image URL correctly - support both formats
-                    let imageUrl = "https://via.placeholder.com/400x300?text=No+Image";
-                    try {
-                        // Check if image is in attrs.image.data format (Strapi v4)
-                        if (attrs.image && attrs.image.data) {
-                            const imgData = Array.isArray(attrs.image.data)
-                                ? attrs.image.data[0]
-                                : attrs.image.data;
-
-                            if (imgData?.attributes?.url) {
-                                imageUrl = imgData.attributes.url.startsWith("http")
-                                    ? imgData.attributes.url
-                                    : `${STRAPI_URL}${imgData.attributes.url}`;
-                            }
-                        }
-                        // Check if image is directly in attrs.image (flattened format)
-                        else if (attrs.image && attrs.image.url) {
-                            imageUrl = attrs.image.url.startsWith("http")
-                                ? attrs.image.url
-                                : `${STRAPI_URL}${attrs.image.url}`;
-                        }
-                        // Check if image is just a string URL
-                        else if (typeof attrs.image === 'string') {
-                            imageUrl = attrs.image.startsWith("http")
-                                ? attrs.image
-                                : `${STRAPI_URL}${attrs.image}`;
-                        }
-
-                        console.log(`Image URL for ${name}:`, imageUrl);
-                    } catch (imgError) {
-                        console.warn("Error parsing image:", imgError);
-                    }
-
-                    // Product card HTML
-                    const productCard = `
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                        <!-- Product Image -->
-                        <div class="relative h-64 overflow-hidden bg-gray-100">
-                            <img 
-                                src="${imageUrl}" 
-                                alt="${name}"
-                                class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                                onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'"
-                            />
-                            ${featured ? '<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">Featured</span>' : ''}
-                            ${stock === 0 ? '<span class="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">Out of Stock</span>' : ''}
+                // Product card HTML
+                const productCard = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <!-- Product Image -->
+                    <div class="relative h-64 overflow-hidden bg-gray-100">
+                        <img 
+                            src="${imageUrl}" 
+                            alt="${name}"
+                            class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                            onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'"
+                        />
+                        ${featured ? '<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">Featured</span>' : ''}
+                        ${stock === 0 ? '<span class="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">Out of Stock</span>' : ''}
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="p-4">
+                        ${category ? `<span class="text-xs text-blue-600 font-semibold uppercase">${category}</span>` : ''}
+                        
+                        <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                            ${name}
+                        </h3>
+                        
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}
+                        </p>
+                        
+                        <!-- Price and Stock -->
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">$${price.toFixed(2)}</span>
+                            <button 
+                                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition ${stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                ${stock === 0 ? 'disabled' : ''}
+                                onclick="alert('Add to cart: ${name.replace(/'/g, "\\'")}')">
+                                ${stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                            </button>
                         </div>
                         
-                        <!-- Product Details -->
-                        <div class="p-4">
-                            ${category ? `<span class="text-xs text-blue-600 font-semibold uppercase">${category}</span>` : ''}
-                            
-                            <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-                                ${name}
-                            </h3>
-                            
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                                ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}
-                            </p>
-                            
-                            <!-- Price and Stock -->
-                            <div class="mt-4 flex items-center justify-between">
-                                <span class="text-2xl font-bold text-gray-900 dark:text-white">$${price.toFixed(2)}</span>
-                                <button 
-                                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition ${stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                                    ${stock === 0 ? 'disabled' : ''}
-                                    onclick="alert('Add to cart: ${name.replace(/'/g, "\\'")}')">
-                                    ${stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                                </button>
-                            </div>
-                            
-                            ${stock > 0 ? `<p class="mt-2 text-xs text-gray-500">${stock} in stock</p>` : ''}
-                        </div>
+                        ${stock > 0 ? `<p class="mt-2 text-xs text-gray-500">${stock} in stock</p>` : ''}
                     </div>
-                    `;
-
-                    gridWrapper.insertAdjacentHTML("beforeend", productCard);
-                } catch (productError) {
-                    console.error(`Error rendering product at index ${index}:`, productError, product);
-                }
-            });
-
-            container.appendChild(gridWrapper);
-
-            // FIXED: Render pagination if meta exists
-            if (data.meta && data.meta.pagination) {
-                console.log("Pagination meta:", data.meta.pagination);
-                renderPagination(data.meta.pagination.page, data.meta.pagination.pageCount);
-            } else {
-                console.warn("No pagination meta found in API response");
-                if (paginationContainer) {
-                    paginationContainer.innerHTML = "";
-                }
-            }
-        })
-        .catch(err => {
-            console.error("Error fetching products:", err);
-            container.innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-red-600 font-semibold">Error loading products</p>
-                    <p class="text-gray-600 text-sm mt-2">${err.message}</p>
-                    <button onclick="loadProducts(${currentPage})" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Retry
-                    </button>
                 </div>
-            `;
-        });
+                `;
+
+                gridWrapper.insertAdjacentHTML("beforeend", productCard);
+            } catch (productError) {
+                console.error(`Error rendering product at index ${index}:`, productError, product);
+            }
+        }
+
+        container.appendChild(gridWrapper);
+
+        // FIXED: Render pagination if meta exists
+        if (data.meta && data.meta.pagination) {
+            console.log("Pagination meta:", data.meta.pagination);
+            renderPagination(data.meta.pagination.page, data.meta.pagination.pageCount);
+        } else {
+            console.warn("No pagination meta found in API response");
+            if (paginationContainer) {
+                paginationContainer.innerHTML = "";
+            }
+        }
+    } catch (err) {
+        console.error("Error fetching products:", err);
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <p class="text-red-600 font-semibold">Error loading products</p>
+                <p class="text-gray-600 text-sm mt-2">${err.message}</p>
+                <button onclick="loadProducts(${currentPage})" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
 }
 
 // Render pagination buttons
