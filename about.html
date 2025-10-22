@@ -319,8 +319,10 @@
 
     async function loadAbout() {
     try {
-        const res = await fetch(`${baseURL}/api/about`);
-        const res = await fetch(url, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+        const url = `${baseURL}/api/about?populate=*`;
+        const res = await fetch(url, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
         const data = await res.json();
         console.log("Fetched data:", data);
 
