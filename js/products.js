@@ -1,5 +1,3 @@
-// products.js - Fixed version with Base64 image loading for ngrok
-
 // Global variables
 let currentPage = 1;
 const pageSize = 6; // Products per page
@@ -17,11 +15,11 @@ async function fetchImageAsBase64(imageUrl) {
                 'ngrok-skip-browser-warning': 'true'
             }
         });
-        
+
         if (!response.ok) {
             throw new Error(`Image fetch failed: ${response.status}`);
         }
-        
+
         const blob = await response.blob();
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -82,7 +80,7 @@ async function loadProducts(page = 1) {
         // Render each product (now with async image loading)
         for (let index = 0; index < data.data.length; index++) {
             const product = data.data[index];
-            
+
             try {
                 // FIXED: Better validation
                 if (!product) {
@@ -118,6 +116,7 @@ async function loadProducts(page = 1) {
                     console.warn("Error parsing description:", descError);
                 }
 
+                const id = product.id || attrs.id || 0;
                 const price = attrs.price || 0;
                 const category = attrs.category || "Uncategorized";
                 const stock = attrs.stock !== undefined ? attrs.stock : 0;
@@ -126,7 +125,7 @@ async function loadProducts(page = 1) {
                 // FIXED: Handle image URL correctly and convert to base64
                 let imageUrl = "https://via.placeholder.com/400x300?text=No+Image";
                 let originalImageUrl = "";
-                
+
                 try {
                     // Check if image is in attrs.image.data format (Strapi v4)
                     if (attrs.image && attrs.image.data) {
@@ -168,7 +167,7 @@ async function loadProducts(page = 1) {
 
                 // Product card HTML
                 const productCard = `
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer" onclick="window.location.href = 'product.html?name=' + encodeURIComponent('${name}')">
                     <!-- Product Image -->
                     <div class="relative h-64 overflow-hidden bg-gray-100">
                         <img 
