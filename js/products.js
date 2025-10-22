@@ -185,7 +185,7 @@ async function loadProducts(page = 1) {
                     <div class="p-4">
                         ${category ? `<span class="text-xs text-blue-600 font-semibold uppercase">${category}</span>` : ''}
                         
-                        <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                        <h3 href="product.html?id=${id}" class="block mt-2 text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition">
                             ${name}
                         </h3>
                         
