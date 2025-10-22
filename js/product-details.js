@@ -1,6 +1,6 @@
 // product-details.js
 
-const baseURL = "http://localhost:1337";
+const baseURL = "https://8cac9444864f.ngrok-free.app";
 const params = new URLSearchParams(window.location.search);
 const productName = params.get("name");
 
