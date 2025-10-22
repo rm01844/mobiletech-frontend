@@ -314,6 +314,7 @@
     async function loadCareers() {
         try {
         const res = await fetch(`${baseURL}/api/careers?populate=*`);
+        const res = await fetch(url, { headers: { 'ngrok-skip-browser-warning': 'true' } });
         const data = await res.json();
         console.log("Fetched careers data:", data);
 
