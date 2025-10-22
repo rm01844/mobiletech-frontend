@@ -313,6 +313,7 @@
     async function loadServices() {
     try {
         const res = await fetch(`${baseURL}/api/services?populate=*`);
+        const res = await fetch(url, { headers: { 'ngrok-skip-browser-warning': 'true' } });
         const data = await res.json();
         console.log("Fetched Services:", data);
 
