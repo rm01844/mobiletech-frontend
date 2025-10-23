@@ -308,9 +308,7 @@
 
     async function loadLicensing() {
     try {
-        const res = await fetch(`${baseURL}/api/licensing`, {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const res = await fetch(`${baseURL}/api/licensing`);
         const data = await res.json();
         console.log("Fetched Licensing:", data);
 
