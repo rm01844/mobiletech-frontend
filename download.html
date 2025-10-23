@@ -308,9 +308,7 @@
 
     async function loadDownloads() {
     try {
-        const res = await fetch(`${baseURL}/api/downloads?populate=*`, {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const res = await fetch(`${baseURL}/api/downloads?populate=*`);
         const data = await res.json();
         console.log("Fetched Downloads:", data);
 
