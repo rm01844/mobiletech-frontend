@@ -313,9 +313,7 @@
     async function loadBrandCenter() {
         try {
         const url = `${baseURL}/api/brand-center?populate=*`;
-        const res = await fetch(url, {
-            headers: { 'ngrok-skip-browser-warning': 'true' }
-        });
+        const res = await fetch(url);
         const data = await res.json();
         console.log("Fetched Brand Center Data:", data);
 
