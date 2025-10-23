@@ -309,9 +309,7 @@
 
     async function loadPrivacyPolicy() {
     try {
-        const res = await fetch(`${baseURL}/api/privacy-policy`, {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const res = await fetch(`${baseURL}/api/privacy-policy`);
         const data = await res.json();
         console.log("Fetched Privacy Policy:", data);
 
