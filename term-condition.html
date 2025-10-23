@@ -309,9 +309,7 @@
 
     async function loadTerms() {
     try {
-        const res = await fetch(`${baseURL}/api/Terms-and-Condition`, {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const res = await fetch(`${baseURL}/api/Terms-and-Condition`);
         const data = await res.json();
         console.log("Fetched Terms & Conditions:", data);
 
