@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'https://8cac9444864f.ngrok-free.app/api';
+const API_BASE_URL = 'https://strapi-backend-bchh.onrender.com/api';
 
 // Helper function to fetch from Strapi with ngrok headers
 async function fetchFromStrapi(endpoint) {
