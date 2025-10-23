@@ -4,7 +4,7 @@ const pageSize = 6; // Products per page
 
 const container = document.getElementById("products-container");
 const paginationContainer = document.getElementById("pagination-container");
-const STRAPI_URL = 'https://8cac9444864f.ngrok-free.app';
+const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
 
 // Helper function to fetch image as base64 (bypasses ngrok warning)
 async function fetchImageAsBase64(imageUrl) {
