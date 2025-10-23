@@ -308,9 +308,7 @@
 
     async function loadSocialLinks() {
     try {
-        const res = await fetch(`${baseURL}/api/social-links?populate=*`, {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const res = await fetch(`${baseURL}/api/social-links?populate=*`);
         const data = await res.json();
         console.log("Fetched Social Links:", data);
 
