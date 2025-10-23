@@ -4,15 +4,11 @@ const baseURL = "https://strapi-backend-bchh.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const productName = params.get("name");
 
-// Helper function to fetch image as base64 (bypasses ngrok warning)
+// Helper function to fetch image as base64
 async function fetchImageAsBase64(imageUrl) {
   try {
     console.log("Fetching image:", imageUrl);
-    const response = await fetch(imageUrl, {
-      headers: {
-        'ngrok-skip-browser-warning': 'true'
-      }
-    });
+    const response = await fetch(imageUrl);
 
     if (!response.ok) {
       throw new Error(`Image fetch failed: ${response.status}`);
@@ -29,8 +25,8 @@ async function fetchImageAsBase64(imageUrl) {
       reader.readAsDataURL(blob);
     });
   } catch (error) {
-    console.error('Error loading image:', error);
-    return 'https://via.placeholder.com/800x600?text=Image+Error';
+    console.error("Error loading image:", error);
+    return "https://via.placeholder.com/800x600?text=Image+Error";
   }
 }
 
@@ -45,12 +41,7 @@ async function fetchImageAsBase64(imageUrl) {
   try {
     // --- Fetch single product ---
     const res = await fetch(
-      `${baseURL}/api/products?filters[name][$eq]=${encodeURIComponent(productName)}&populate=*`,
-      {
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
-      }
+      `${baseURL}/api/products?filters[name][$eq]=${encodeURIComponent(productName)}&populate=*`
     );
     const data = await res.json();
 
@@ -69,21 +60,19 @@ async function fetchImageAsBase64(imageUrl) {
     const stock = product.stock !== undefined ? product.stock : 0;
     const featured = product.featured || false;
 
-    // --- Handle rich-text or nested descriptions ---
     let description = "No description available.";
     if (typeof product.description === "string") {
       description = product.description;
     } else if (Array.isArray(product.description)) {
       description = product.description
-        .map(d => d.children?.[0]?.text || "")
+        .map((d) => d.children?.[0]?.text || "")
         .join(" ");
     } else if (product.description?.children?.length) {
       description = product.description.children
-        .map(c => c.text || "")
+        .map((c) => c.text || "")
         .join(" ");
     }
 
-    // --- Handle main product image with base64 conversion ---
     let imageUrl = "https://via.placeholder.com/800x600?text=No+Image";
     try {
       const imgField = product.image || product.images || product.picture;
@@ -101,8 +90,7 @@ async function fetchImageAsBase64(imageUrl) {
         }
       }
 
-      // Convert to base64 if we have an ngrok URL
-      if (originalImageUrl && originalImageUrl.includes('ngrok')) {
+      if (originalImageUrl && originalImageUrl.includes("ngrok")) {
         imageUrl = await fetchImageAsBase64(originalImageUrl);
       } else if (originalImageUrl) {
         imageUrl = originalImageUrl;
@@ -111,11 +99,9 @@ async function fetchImageAsBase64(imageUrl) {
       console.warn("Image parse failed:", e);
     }
 
-    // --- Render single product section ---
     document.getElementById("product-container").innerHTML = `
       <div class="max-w-6xl mx-auto mt-10 bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Product Image - Fixed aspect ratio -->
           <div class="relative bg-gray-100 dark:bg-gray-700 flex items-center justify-center p-4">
             <img 
               src="${imageUrl}" 
@@ -123,11 +109,18 @@ async function fetchImageAsBase64(imageUrl) {
               class="max-w-full max-h-96 object-contain rounded-lg"
               onerror="this.src='https://via.placeholder.com/800x600?text=Image+Error'"
             />
-            ${featured ? '<span class="absolute top-4 right-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">Featured</span>' : ''}
-            ${stock === 0 ? '<span class="absolute top-4 left-4 bg-red-600 text-white text-xs px-3 py-1 rounded-full">Out of Stock</span>' : ''}
+            ${
+              featured
+                ? '<span class="absolute top-4 right-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">Featured</span>'
+                : ""
+            }
+            ${
+              stock === 0
+                ? '<span class="absolute top-4 left-4 bg-red-600 text-white text-xs px-3 py-1 rounded-full">Out of Stock</span>'
+                : ""
+            }
           </div>
           
-          <!-- Product Info -->
           <div class="p-6 flex flex-col justify-between">
             <div>
               <span class="text-sm text-blue-600 dark:text-blue-400 font-semibold uppercase">${category}</span>
@@ -136,18 +129,29 @@ async function fetchImageAsBase64(imageUrl) {
               
               <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div class="flex items-baseline gap-3">
-                  <span class="text-4xl font-bold text-blue-600 dark:text-blue-400">$${price.toFixed(2)}</span>
-                  ${stock > 0 ? `<span class="text-sm text-green-600 dark:text-green-400">${stock} in stock</span>` : '<span class="text-sm text-red-600 dark:text-red-400">Out of stock</span>'}
+                  <span class="text-4xl font-bold text-blue-600 dark:text-blue-400">$${price.toFixed(
+                    2
+                  )}</span>
+                  ${
+                    stock > 0
+                      ? `<span class="text-sm text-green-600 dark:text-green-400">${stock} in stock</span>`
+                      : '<span class="text-sm text-red-600 dark:text-red-400">Out of stock</span>'
+                  }
                 </div>
               </div>
             </div>
             
             <div class="mt-8 flex gap-4">
               <button 
-                class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition ${stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                ${stock === 0 ? 'disabled' : ''}
-                onclick="addToCart('${item.id}', '${name.replace(/'/g, "\\'")}', ${price})">
-                ${stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition ${
+                  stock === 0 ? "opacity-50 cursor-not-allowed" : ""
+                }"
+                ${stock === 0 ? "disabled" : ""}
+                onclick="addToCart('${item.id}', '${name.replace(
+      /'/g,
+      "\\'"
+    )}', ${price})">
+                ${stock === 0 ? "Out of Stock" : "Add to Cart"}
               </button>
               <button 
                 onclick="window.history.back()"
@@ -159,15 +163,12 @@ async function fetchImageAsBase64(imageUrl) {
         </div>
       </div>
 
-      <!-- Related Products Section -->
       <div class="max-w-6xl mx-auto mt-16">
         <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
           More ${category} Products
         </h2>
         
-        <!-- Carousel Container -->
         <div class="relative">
-          <!-- Navigation Buttons -->
           <button 
             id="carousel-prev" 
             class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition hidden"
@@ -186,26 +187,20 @@ async function fetchImageAsBase64(imageUrl) {
             </svg>
           </button>
           
-          <!-- Carousel Track -->
           <div 
             id="related-products" 
             class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory hide-scrollbar pb-4"
             style="scrollbar-width: none; -ms-overflow-style: none;">
-            <!-- Products will be inserted here -->
           </div>
         </div>
       </div>
     `;
 
-    // --- Fetch related products (same category) ---
     if (category && category !== "Uncategorized") {
       const relRes = await fetch(
-        `${baseURL}/api/products?filters[category][$eq]=${encodeURIComponent(category)}&populate=image`,
-        {
-          headers: {
-            'ngrok-skip-browser-warning': 'true'
-          }
-        }
+        `${baseURL}/api/products?filters[category][$eq]=${encodeURIComponent(
+          category
+        )}&populate=image`
       );
       const relData = await relRes.json();
 
@@ -216,7 +211,7 @@ async function fetchImageAsBase64(imageUrl) {
 
       for (const r of relData.data) {
         const rel = r.attributes || r;
-        if (rel.name === name) continue; // skip current product
+        if (rel.name === name) continue;
 
         let relImg = "https://via.placeholder.com/400x300?text=No+Image";
         let originalRelImg = "";
@@ -225,45 +220,45 @@ async function fetchImageAsBase64(imageUrl) {
           const imgField = rel.image || rel.images || rel.picture;
 
           if (imgField) {
-            // Case 1: Strapi v4 "data" array or object
             if (Array.isArray(imgField.data) && imgField.data.length > 0) {
               originalRelImg = `${baseURL}${imgField.data[0].attributes.url}`;
             } else if (imgField.data?.attributes?.url) {
               originalRelImg = `${baseURL}${imgField.data.attributes.url}`;
-            }
-
-            // Case 2: Direct URL returned (no .data wrapper)
-            else if (imgField.url) {
+            } else if (imgField.url) {
               originalRelImg = imgField.url.startsWith("http")
                 ? imgField.url
                 : `${baseURL}${imgField.url}`;
             }
           }
 
-          // Convert to base64 always (for deployment compatibility)
           if (originalRelImg) {
             relImg = await fetchImageAsBase64(originalRelImg);
           }
-
         } catch (e) {
           console.warn("Related image parse failed:", e);
         }
 
-        // Convert related product images to base64
-        if (originalRelImg && originalRelImg.includes('ngrok')) {
+        if (originalRelImg && originalRelImg.includes("ngrok")) {
           relImg = await fetchImageAsBase64(originalRelImg);
         } else if (originalRelImg) {
           relImg = originalRelImg;
         }
 
-        // Get description snippet
         let descSnippet = "";
         if (typeof rel.description === "string") {
           descSnippet = rel.description.substring(0, 80) + "...";
         } else if (Array.isArray(rel.description)) {
-          descSnippet = rel.description.map(d => d.children?.[0]?.text || "").join(" ").substring(0, 80) + "...";
+          descSnippet =
+            rel.description
+              .map((d) => d.children?.[0]?.text || "")
+              .join(" ")
+              .substring(0, 80) + "...";
         } else if (rel.description?.children) {
-          descSnippet = rel.description.children.map(c => c.text || "").join(" ").substring(0, 80) + "...";
+          descSnippet =
+            rel.description.children
+              .map((c) => c.text || "")
+              .join(" ")
+              .substring(0, 80) + "...";
         }
 
         relatedContainer.insertAdjacentHTML(
@@ -284,9 +279,13 @@ async function fetchImageAsBase64(imageUrl) {
                   ${descSnippet}
                 </p>
                 <div class="flex items-center justify-between">
-                  <span class="text-xl font-bold text-blue-600 dark:text-blue-400">$${(rel.price || 0).toFixed(2)}</span>
+                  <span class="text-xl font-bold text-blue-600 dark:text-blue-400">$${(
+                    rel.price || 0
+                  ).toFixed(2)}</span>
                   <button 
-                    onclick="window.location.href='product.html?name=${encodeURIComponent(rel.name)}'"
+                    onclick="window.location.href='product.html?name=${encodeURIComponent(
+                      rel.name
+                    )}'"
                     class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     View Details
                   </button>
@@ -299,11 +298,8 @@ async function fetchImageAsBase64(imageUrl) {
         relatedCount++;
       }
 
-      // Show/hide carousel navigation based on content width
       updateCarouselNavigation();
-
-      // Add scroll event listener to update navigation buttons
-      relatedContainer.addEventListener('scroll', updateCarouselNavigation);
+      relatedContainer.addEventListener("scroll", updateCarouselNavigation);
     }
   } catch (err) {
     console.error("Error fetching product:", err);
@@ -311,76 +307,68 @@ async function fetchImageAsBase64(imageUrl) {
   }
 })();
 
-// --- Carousel Navigation Functions ---
 function scrollCarousel(direction) {
-  const container = document.getElementById('related-products');
-  const scrollAmount = 350; // Width of one card + gap
-
-  if (direction === 'left') {
-    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  const container = document.getElementById("related-products");
+  const scrollAmount = 350;
+  if (direction === "left") {
+    container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
   } else {
-    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
   }
 }
 
 function updateCarouselNavigation() {
-  const container = document.getElementById('related-products');
-  const prevBtn = document.getElementById('carousel-prev');
-  const nextBtn = document.getElementById('carousel-next');
-
+  const container = document.getElementById("related-products");
+  const prevBtn = document.getElementById("carousel-prev");
+  const nextBtn = document.getElementById("carousel-next");
   if (!container || !prevBtn || !nextBtn) return;
-
-  // Check if carousel is needed (content wider than container)
   const needsCarousel = container.scrollWidth > container.clientWidth;
 
   if (needsCarousel) {
-    prevBtn.classList.remove('hidden');
-    nextBtn.classList.remove('hidden');
-
-    // Hide prev button at start
+    prevBtn.classList.remove("hidden");
+    nextBtn.classList.remove("hidden");
     if (container.scrollLeft <= 10) {
-      prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      prevBtn.classList.add("opacity-50", "cursor-not-allowed");
     } else {
-      prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      prevBtn.classList.remove("opacity-50", "cursor-not-allowed");
     }
 
-    // Hide next button at end
-    if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-      nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    if (
+      container.scrollLeft + container.clientWidth >=
+      container.scrollWidth - 10
+    ) {
+      nextBtn.classList.add("opacity-50", "cursor-not-allowed");
     } else {
-      nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      nextBtn.classList.remove("opacity-50", "cursor-not-allowed");
     }
   } else {
-    prevBtn.classList.add('hidden');
-    nextBtn.classList.add('hidden');
+    prevBtn.classList.add("hidden");
+    nextBtn.classList.add("hidden");
   }
 }
 
-// --- Cart logic ---
 function addToCart(id, name, price) {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const existing = cart.find(item => item.id === id);
+  const existing = cart.find((item) => item.id === id);
   if (existing) existing.quantity++;
   else cart.push({ id, name, price, quantity: 1 });
 
   localStorage.setItem("cart", JSON.stringify(cart));
 
-  // Show success message
   const btn = event.target;
   const originalText = btn.innerHTML;
-  btn.innerHTML = '✓ Added!';
-  btn.classList.add('bg-green-600', 'hover:bg-green-700');
-  btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+  btn.innerHTML = "✓ Added!";
+  btn.classList.add("bg-green-600", "hover:bg-green-700");
+  btn.classList.remove("bg-blue-600", "hover:bg-blue-700");
 
   setTimeout(() => {
     btn.innerHTML = originalText;
-    btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-    btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+    btn.classList.remove("bg-green-600", "hover:bg-green-700");
+    btn.classList.add("bg-blue-600", "hover:bg-blue-700");
   }, 2000);
 }
 
-// Add CSS to hide scrollbar
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
