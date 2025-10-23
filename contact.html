@@ -352,9 +352,7 @@
     async function loadContact() {
     try {
         const url = `${baseURL}/api/contact?populate=*`;
-        const res = await fetch(url, {
-            headers: { 'ngrok-skip-browser-warning': 'true' }
-        });
+        const res = await fetch(url);
         const data = await res.json();
         console.log("Fetched contact data:", data);
 
