@@ -4,11 +4,7 @@ const API_BASE_URL = 'https://strapi-backend-bchh.onrender.com/api';
 // Helper function to fetch from Strapi with ngrok headers
 async function fetchFromStrapi(endpoint) {
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
-        });
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
