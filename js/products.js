@@ -6,15 +6,11 @@ const container = document.getElementById("products-container");
 const paginationContainer = document.getElementById("pagination-container");
 const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
 
-// Helper function to fetch image as base64 (bypasses ngrok warning)
+// Helper function to fetch image as base64 
 async function fetchImageAsBase64(imageUrl) {
     try {
         console.log("Fetching image:", imageUrl);
-        const response = await fetch(imageUrl, {
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
-        });
+        const response = await fetch(imageUrl);
 
         if (!response.ok) {
             throw new Error(`Image fetch failed: ${response.status}`);
@@ -47,16 +43,12 @@ async function loadProducts(page = 1) {
 
     container.innerHTML = "<div class='flex justify-center items-center py-12'><div class='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div></div>";
 
-    // FIXED: Added pagination parameters and ngrok header
+    // FIXED: Added pagination parameters 
     const apiUrl = `${STRAPI_URL}/api/products?populate=image&pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
     console.log("Fetching from:", apiUrl);
 
     try {
-        const res = await fetch(apiUrl, {
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
-        });
+        const res = await fetch(apiUrl);
 
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);
