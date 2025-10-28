@@ -1,4 +1,4 @@
 [build]
-command = "echo 'Static site'"
+command = "npm run build"
 [deploy]
-start = "npx serve ."
+start = "npm run start"
