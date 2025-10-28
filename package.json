@@ -1,48 +1,19 @@
 {
-  "name": "my-site",
-  "version": "0.1.0",
+  "name": "mobiletech-frontend",
+  "version": "1.0.0",
   "private": true,
-  "description": "A Strapi application",
+  "description": "MobileTech static frontend for Strapi backend",
   "scripts": {
-    "build": "strapi build",
-    "console": "strapi console",
-    "deploy": "strapi deploy",
-    "dev": "strapi develop",
-    "develop": "strapi develop",
-    "start": "strapi start",
-    "strapi": "strapi",
-    "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
-  },
-  "dependencies": {
-    "@strapi/plugin-cloud": "5.25.0",
-    "@strapi/plugin-users-permissions": "5.25.0",
-    "@strapi/strapi": "5.25.0",
-    "better-sqlite3": "11.3.0",
-    "pg": "^8.11.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
-    "styled-components": "^6.0.0"
+    "build": "npx tailwindcss -i ./css/input.css -o ./css/output.css --minify",
+    "start": "npx serve ."
   },
   "devDependencies": {
     "tailwindcss": "^3.4.0",
     "postcss": "^8.4.38",
     "autoprefixer": "^10.4.20",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "typescript": "^5"
+    "serve": "^14.2.1"
   },
-   "engines": {
-    "node": "20.x",
-    "npm": ">=10.8.2"
-  },
-  "strapi": {
-    "uuid": "e212675a-9a9a-459f-ad9b-658443f34cb6",
-    "installId": "107df3548dce52363109573299ce51fff3cb0a68a119707510cb5a32e696a15e"
-  },
-  "scripts": {
-    "build": "npx tailwindcss -i ./css/input.css -o ./css/output.css --minify"
+  "engines": {
+    "node": "20.x"
   }
 }
