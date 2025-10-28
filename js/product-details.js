@@ -1,6 +1,6 @@
 // product-details.js
 
-const baseURL = "strapi-backend-production-524c.up.railway.app";
+const baseURL = "https://strapi-backend-production-524c.up.railway.app";
 const params = new URLSearchParams(window.location.search);
 const productName = params.get("name");
 
