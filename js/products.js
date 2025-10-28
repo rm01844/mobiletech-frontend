@@ -4,7 +4,7 @@ const pageSize = 6; // Products per page
 
 const container = document.getElementById("products-container");
 const paginationContainer = document.getElementById("pagination-container");
-const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
+const STRAPI_URL = 'strapi-backend-production-524c.up.railway.app';
 
 // Helper function to fetch image as base64 
 async function fetchImageAsBase64(imageUrl) {
