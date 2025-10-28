@@ -224,7 +224,7 @@
 
     <script>
 
-        const apiUrl = "strapi-backend-production-524c.up.railway.app/api/products?populate=*";
+        const apiUrl = "https://strapi-backend-production-524c.up.railway.app/api/products?populate=*";
         fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
@@ -266,7 +266,7 @@
                 if (imgData?.attributes?.url) {
                     imageUrl = imgData.attributes.url.startsWith("http")
                         ? imgData.attributes.url
-                        : `strapi-backend-production-524c.up.railway.app${imgData.attributes.url}`; // No spaces!
+                        : `https://strapi-backend-production-524c.up.railway.app${imgData.attributes.url}`; // No spaces!
                 }
                 }
 
