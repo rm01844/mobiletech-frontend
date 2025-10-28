@@ -1,16 +1,17 @@
 const STRAPI_URL = 'https://strapi-backend-production-524c.up.railway.app';
 
-async function fetchFromStrapi(endpoint, options = {}) {
+async function fetchFromStrapi(endpoint) {
   const url = `${STRAPI_URL}/api/${endpoint}`;
+  console.log('Fetching from:', url);
   
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP ${response.status}`);
     }
-    return response.json();
+    return await response.json();
   } catch (error) {
-    console.error('Strapi fetch error:', error);
+    console.error('Fetch error:', error);
     return null;
   }
 }
