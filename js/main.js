@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'strapi-backend-production-524c.up.railway.app/api';
+const API_BASE_URL = 'https://strapi-backend-production-524c.up.railway.app/api';
 
 // Helper function to fetch from Strapi with ngrok headers
 async function fetchFromStrapi(endpoint) {
