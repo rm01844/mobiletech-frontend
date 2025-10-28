@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "build": "npx tailwindcss -i ./css/input.css -o ./css/output.css --minify",
-    "start": "npx serve ."
+    "start": "serve . -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.0",
     "postcss": "^8.4.38",
-    "autoprefixer": "^10.4.20",
-    "serve": "^14.2.1"
+    "autoprefixer": "^10.4.20"
   },
   "engines": {
     "node": "20.x"
