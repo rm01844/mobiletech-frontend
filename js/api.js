@@ -1,4 +1,4 @@
-const STRAPI_URL = 'https://strapi-backend-bchh.onrender.com';
+const STRAPI_URL = 'strapi-backend-production-524c.up.railway.app';
 
 async function fetchFromStrapi(endpoint, options = {}) {
     // Construct full URL
