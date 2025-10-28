@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+```
+
+### Step 3: Railway Settings
+
+**Build Command:**
+```
+npm install && npm run build
+```
+
+**Start Command:**
+```
+npm start
