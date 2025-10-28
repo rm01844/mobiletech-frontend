@@ -1,19 +1,21 @@
-const STRAPI_URL = 'strapi-backend-production-524c.up.railway.app';
+const STRAPI_URL = 'https://strapi-backend-production-524c.up.railway.app';
 
 async function fetchFromStrapi(endpoint, options = {}) {
-    // Construct full URL
-    const url = `${STRAPI_URL}/api/${endpoint}`;
-
-    try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Strapi fetch error:', error);
-        return null;
+  const url = `${STRAPI_URL}/api/${endpoint}`;
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return response.json();
+  } catch (error) {
+    console.error('Strapi fetch error:', error);
+    return null;
+  }
 }
+
+// ... rest of your API functions
 
 // Specific API calls
 export async function getProducts() {
